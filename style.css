@@ -4,8 +4,7 @@ body {
 }
 
 header {
-    background-color: #333;
-    color: #fff;
+    background-color: #f0f0f0;
     padding: 20px;
     text-align: center;
 }
@@ -18,9 +17,10 @@ main {
 }
 
 section {
-    background-color: #f7f7f7;
+    background-color: #f0f0f0;
     padding: 20px;
-    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -30,22 +30,21 @@ label {
 }
 
 input[type="text"], input[type="number"] {
-    width: 50%;
-    height: 30px;
-    font-size: 18px;
+    width: 100%;
     padding: 10px;
+    margin-bottom: 20px;
     border: 1px solid #ccc;
 }
 
-button[type="submit"] {
-    background-color: #333;
+input[type="submit"] {
+    background-color: #4CAF50;
     color: #fff;
     padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
 }
 
-button[type="submit"]:hover {
-    background-color: #444;
+input[type="submit"]:hover {
+    background-color: #3e8e41;
 }
