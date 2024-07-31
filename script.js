@@ -1,12 +1,8 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const form = document.querySelector("form");
-    form.addEventListener("submit", function(event) {
+// Ajoute un événement au formulaire pour valider les entrées
+document.querySelector('form').addEventListener('submit', function(event) {
+    // Vérifie si les champs sont remplis
+    if (document.querySelector('#player1_name').value === '' || document.querySelector('#player2_name').value === '' || document.querySelector('#plis_pronostiques').value === '') {
+        alert('Veuillez remplir tous les champs');
         event.preventDefault();
-        const plis = document.querySelector("#plis").value;
-        const points = document.querySelector("#points").value;
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "calculate.php", true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.send("plis=" + plis + "&points=" + points);
-    });
+    }
 });
