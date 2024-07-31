@@ -3,31 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L'Escalier</title>
+    <title>L'Escalier - Accueil</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>L'Escalier</h1>
+        <h1>L'Escalier - Accueil</h1>
     </header>
     <main>
         <section>
-            <h2> Nouvelle partie </h2>
+            <h2>Créer une nouvelle partie</h2>
             <form action="game.php" method="post">
                 <label for="player1_name">Joueur 1 :</label>
-                <input type="text" id="player1_name" name="player1_name" required>
+                <input type="text" id="player1_name" name="player1_name" required><br><br>
                 <label for="player2_name">Joueur 2 :</label>
-                <input type="text" id="player2_name" name="player2_name" required>
-                <label for="plis_pronostiques">Pronostic :</label>
-                <input type="number" id="plis_pronostiques" name="plis_pronostiques" required>
-                <button type="submit">Commencer</button>
+                <input type="text" id="player2_name" name="player2_name" required><br><br>
+                <label for="player3_name">Joueur 3 :</label>
+                <input type="text" id="player3_name" name="player3_name"><br><br>
+                <label for="player4_name">Joueur 4 :</label>
+                <input type="text" id="player4_name" name="player4_name"><br><br>
+                <label for="player5_name">Joueur 5 :</label>
+                <input type="text" id="player5_name" name="player5_name"><br><br>
+                <input type="submit" value="Créer la partie">
             </form>
         </section>
-        <section>
-            <h2>Règles du jeu</h2>
-            <p><a href="rules.html">En savoir plus</a></p>
-        </section>
     </main>
-    <script src="script.js"></script>
 </body>
 </html>
