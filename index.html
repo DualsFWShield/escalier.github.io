@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escalier - Compteur de points</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Escalier - Compteur de points</h1>
+    <form action="calculate.php" method="post">
+        <label for="plis">Saisir les résultats de chaque pli :</label>
+        <textarea id="plis" name="plis" cols="30" rows="10"></textarea>
+        <br>
+        <label for="points">Saisir les points :</label>
+        <input type="number" id="points" name="points" value="0">
+        <br>
+        <input type="submit" value="Calculer les points">
+    </form>
+    <div id="result"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
