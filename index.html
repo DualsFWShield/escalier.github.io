@@ -3,22 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escalier - Compteur de points</title>
+    <title>L'Escalier</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Escalier - Compteur de points</h1>
-    <form action="calculate.php" method="post">
-        <label for="plis">Saisir les résultats de chaque pli :</label>
-        <textarea id="plis" name="plis" cols="30" rows="10"></textarea>
-        <br>
-        <label for="points">Saisir les points :</label>
-        <input type="number" id="points" name="points" value="0">
-        <br>
-        <input type="submit" value="Calculer les points">
-    </form>
-    <div id="result"></div>
-
+    <header>
+        <h1>L'Escalier</h1>
+    </header>
+    <main>
+        <section>
+            <h2> Nouvelle partie </h2>
+            <form action="game.php" method="post">
+                <label for="player1_name">Joueur 1 :</label>
+                <input type="text" id="player1_name" name="player1_name" required>
+                <label for="player2_name">Joueur 2 :</label>
+                <input type="text" id="player2_name" name="player2_name" required>
+                <label for="plis_pronostiques">Pronostic :</label>
+                <input type="number" id="plis_pronostiques" name="plis_pronostiques" required>
+                <button type="submit">Commencer</button>
+            </form>
+        </section>
+        <section>
+            <h2>Règles du jeu</h2>
+            <p><a href="rules.html">En savoir plus</a></p>
+        </section>
+    </main>
     <script src="script.js"></script>
 </body>
 </html>
