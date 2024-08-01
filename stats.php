@@ -1,38 +1,61 @@
 <?php
 session_start();
 
-// Vérifier si la partie est terminée et si les résultats des manches existent
-if (!isset($_SESSION['players']) || !isset($_SESSION['round_results'])) {
-    header('Location: index.php');
+// Fonction pour récupérer les parties sauvegardées depuis localStorage
+function getSavedGames() {
+    if (isset($_COOKIE['savedGames'])) {
+        return json_decode($_COOKIE['savedGames'], true);
+    }
+    return [];
+}
+
+// Sauvegarder les parties en session
+$savedGames = getSavedGames();
+$_SESSION['savedGames'] = $savedGames;
+
+// Fonction pour générer un tableau de stats des joueurs
+function generatePlayerStats($players) {
+    $stats = [];
+    foreach ($players as $player) {
+        $stats[$player['name']] = [
+            'correct_rounds' => 0,
+            'incorrect_rounds' => 0,
+            'total_points' => $player['score']
+        ];
+    }
+    return $stats;
+}
+
+// Génération des données pour les graphiques
+$playerStats = generatePlayerStats($_SESSION['players']);
+
+// Fonction d'exportation des statistiques au format JSON
+if (isset($_POST['export'])) {
+    header('Content-Type: application/json');
+    header('Content-Disposition: attachment; filename="stats.json"');
+    echo json_encode(['players' => $_SESSION['players'], 'round_results' => $_SESSION['round_results']]);
     exit();
 }
 
-// Calculer le nombre de manches correctes et erronées pour chaque joueur
-$players_stats = [];
-foreach ($_SESSION['players'] as $player) {
-    $players_stats[$player['name']] = [
-        'correct' => 0,
-        'errors' => 0
-    ];
-}
-
-foreach ($_SESSION['round_results'] as $round_result) {
-    foreach ($round_result['results'] as $player_name => $result) {
-        if ($result['correct']) {
-            $players_stats[$player_name]['correct']++;
-        } else {
-            $players_stats[$player_name]['errors']++;
-        }
+// Fonction d'importation des statistiques au format JSON
+if (isset($_POST['import'])) {
+    if (isset($_FILES['imported_file']) && $_FILES['imported_file']['error'] == 0) {
+        $importedData = json_decode(file_get_contents($_FILES['imported_file']['tmp_name']), true);
+        $_SESSION['players'] = $importedData['players'];
+        $_SESSION['round_results'] = $importedData['round_results'];
     }
 }
 
-// Calculer les scores finaux
-$final_scores = [];
-foreach ($_SESSION['players'] as $player) {
-    $final_scores[$player['name']] = $player['score'];
+// Calcul des statistiques par joueur
+foreach ($_SESSION['round_results'] as $round) {
+    foreach ($round['results'] as $playerName => $result) {
+        if ($result['correct']) {
+            $playerStats[$playerName]['correct_rounds']++;
+        } else {
+            $playerStats[$playerName]['incorrect_rounds']++;
+        }
+    }
 }
-arsort($final_scores); // Trier les scores du plus élevé au plus bas
-
 ?>
 
 <!DOCTYPE html>
@@ -42,38 +65,85 @@ arsort($final_scores); // Trier les scores du plus élevé au plus bas
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jeu Escalier - Statistiques</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('playerStatsChart').getContext('2d');
+            const playerNames = <?php echo json_encode(array_keys($playerStats)); ?>;
+            const correctRounds = <?php echo json_encode(array_column($playerStats, 'correct_rounds')); ?>;
+            const incorrectRounds = <?php echo json_encode(array_column($playerStats, 'incorrect_rounds')); ?>;
+            const totalPoints = <?php echo json_encode(array_column($playerStats, 'total_points')); ?>;
+
+            let chartType = 'bar';
+
+            const config = {
+                type: chartType,
+                data: {
+                    labels: playerNames,
+                    datasets: [
+                        {
+                            label: 'Manches Correctes',
+                            data: correctRounds,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Manches Erronées',
+                            data: incorrectRounds,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Total Points',
+                            data: totalPoints,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            };
+
+            let chart = new Chart(ctx, config);
+
+            document.getElementById('chartType').addEventListener('change', function() {
+                chart.destroy();
+                config.type = this.value;
+                chart = new Chart(ctx, config);
+            });
+        });
+    </script>
 </head>
 <body>
     <header>
         <h1>Jeu Escalier - Statistiques</h1>
         <nav>
             <a href="index.php">Accueil</a>
-            <a href="stats.php">Statistiques</a>
+            <a href="game.php">Retour au Jeu</a>
             <a href="rules.php">Règles du Jeu</a>
         </nav>
     </header>
     <main>
-        <h2>Tableau Final</h2>
-        
-        <h3>Classement des Joueurs</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($final_scores as $name => $score): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($name); ?></td>
-                        <td><?php echo $score; ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <h2>Statistiques des Joueurs</h2>
+        <label for="chartType">Type de graphique :</label>
+        <select id="chartType">
+            <option value="bar">Barres</option>
+            <option value="line">Lignes</option>
+            <option value="pie">Camembert</option>
+            <option value="doughnut">Donut</option>
+        </select>
+        <canvas id="playerStatsChart" width="400" height="200"></canvas>
 
-        <h3>Détails des Manches</h3>
+        <h2>Détails des Manches</h2>
         <table>
             <thead>
                 <tr>
@@ -86,14 +156,14 @@ arsort($final_scores); // Trier les scores du plus élevé au plus bas
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($_SESSION['round_results'] as $round_result): ?>
-                    <?php foreach ($round_result['results'] as $player_name => $result): ?>
+                <?php foreach ($_SESSION['round_results'] as $round): ?>
+                    <?php foreach ($round['results'] as $playerName => $result): ?>
                         <tr>
-                            <td><?php echo $round_result['round'] + 1; ?></td>
-                            <td><?php echo htmlspecialchars($player_name); ?></td>
-                            <td><?php echo $result['prediction']; ?></td>
-                            <td><?php echo $result['actual']; ?></td>
-                            <td><?php echo $result['points']; ?></td>
+                            <td><?php echo htmlspecialchars($round['round'] + 1); ?></td>
+                            <td><?php echo htmlspecialchars($playerName); ?></td>
+                            <td><?php echo htmlspecialchars($result['prediction']); ?></td>
+                            <td><?php echo htmlspecialchars($result['actual']); ?></td>
+                            <td><?php echo htmlspecialchars($result['points']); ?></td>
                             <td><?php echo $result['correct'] ? 'Oui' : 'Non'; ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -101,28 +171,14 @@ arsort($final_scores); // Trier les scores du plus élevé au plus bas
             </tbody>
         </table>
 
-        <h3>Statistiques par Joueur</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Manches Correctes</th>
-                    <th>Manches Erronées</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($players_stats as $player_name => $stats): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($player_name); ?></td>
-                        <td><?php echo $stats['correct']; ?></td>
-                        <td><?php echo $stats['errors']; ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-
-        <form action="index.php" method="post">
-            <button type="submit" name="new_game">Nouvelle Partie</button>
+        <h2>Export et Import de Statistiques</h2>
+        <form method="post" enctype="multipart/form-data">
+            <button type="submit" name="export">Exporter les Statistiques</button>
+        </form>
+        <form method="post" enctype="multipart/form-data">
+            <label for="imported_file">Importer un fichier JSON :</label>
+            <input type="file" name="imported_file" accept=".json" required>
+            <button type="submit" name="import">Importer les Statistiques</button>
         </form>
     </main>
 </body>
