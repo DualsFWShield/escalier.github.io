@@ -97,12 +97,57 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['end_round'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jeu Escalier - Partie</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Récupérer les données de la partie sauvegardée
+            const savedGame = JSON.parse(localStorage.getItem("savedGame"));
+            if (savedGame) {
+                // Restauration des données de la session
+                <?php
+                if (isset($savedGame['players'])) {
+                    $_SESSION['players'] = $savedGame['players'];
+                }
+                if (isset($savedGame['current_round'])) {
+                    $_SESSION['current_round'] = $savedGame['current_round'];
+                }
+                if (isset($savedGame['current_player_index'])) {
+                    $_SESSION['current_player_index'] = $savedGame['current_player_index'];
+                }
+                if (isset($savedGame['round_results'])) {
+                    $_SESSION['round_results'] = $savedGame['round_results'];
+                }
+                ?>
+            }
+        });
+
+        function saveGame() {
+            const players = <?php echo json_encode($_SESSION['players']); ?>;
+            const currentRound = <?php echo $_SESSION['current_round']; ?>;
+            const currentPlayerIndex = <?php echo $_SESSION['current_player_index']; ?>;
+            const roundResults = <?php echo json_encode($_SESSION['round_results']); ?>;
+
+            const gameData = {
+                players: players,
+                current_round: currentRound,
+                current_player_index: currentPlayerIndex,
+                round_results: roundResults
+            };
+
+            localStorage.setItem("savedGame", JSON.stringify(gameData));
+        }
+
+        function clearSavedGame() {
+            localStorage.removeItem("savedGame");
+        }
+
+        window.onbeforeunload = saveGame;
+    </script>
 </head>
 <body>
     <header>
         <h1>Jeu Escalier - Partie</h1>
         <nav>
-            <a href="index.php">Accueil</a>
+            <a href="index.php" onclick="clearSavedGame()">Accueil</a>
             <a href="stats.php">Statistiques</a>
             <a href="rules.php">Règles du Jeu</a>
         </nav>
@@ -110,30 +155,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['end_round'])) {
     <main>
         <h2>Manche <?php echo $_SESSION['current_round'] + 1; ?> / 20</h2>
         <p>Manche avec un maximum de plis : <?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?></p>
-        <p>Joueur qui pronostique en premier : <?php echo htmlspecialchars($_SESSION['players'][$_SESSION['current_player_index']]['name']); ?></p>
-        
+        <p>Joueur qui doit pronostiquer en premier : <?php echo $_SESSION['players'][$_SESSION['current_player_index']]['name']; ?></p>
+
         <?php if (isset($error)): ?>
             <p class="error"><?php echo htmlspecialchars($error); ?></p>
         <?php endif; ?>
 
         <form method="post">
             <h3>Pronostics</h3>
-            <?php
-            $playerCount = count($_SESSION['players']);
-            for ($i = 0; $i < $playerCount; $i++) {
-                $playerIndex = ($_SESSION['current_player_index'] + $i) % $playerCount;
-                $player = $_SESSION['players'][$playerIndex];
-                ?>
+            <?php foreach ($_SESSION['players'] as $index => $player): ?>
                 <div>
                     <label><?php echo htmlspecialchars($player['name']); ?> : </label>
-                    <input type="number" name="predictions[]" min="0" max="<?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?>" placeholder="Prédiction" value="0" required>
+                    <input type="number" name="predictions[]" min="1" max="<?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?>" placeholder="Prédiction" value="0" required>
                 </div>
-            <?php } ?>
+            <?php endforeach; ?>
             <h3>Résultats</h3>
             <?php foreach ($_SESSION['players'] as $index => $player): ?>
                 <div>
                     <label><?php echo htmlspecialchars($player['name']); ?> : </label>
-                    <input type="number" name="actual_plis[]" min="0" max="<?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?>" placeholder="Plis Réels" value="0" required>
+                    <input type="number" name="actual_plis[]" min="1" max="<?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?>" placeholder="Plis Réels" value="0" required>
                 </div>
             <?php endforeach; ?>
             <button type="submit" name="end_round">Terminer la Manche</button>
