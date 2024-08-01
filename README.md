@@ -11,7 +11,7 @@ Le jeu "Escalier" est un jeu de cartes simple qui peut être joué par plusieurs
 1. Cliquez sur le bouton "Cliquez ici pour jouer" ci-dessous pour accéder à la page de jeu.
 2. Suivez les instructions sur la page de jeu pour commencer à jouer.
 
-[Cliquez ici pour jouer](index.php)
+[Cliquez ici pour jouer](escalier.unaux.com)
 
 ## Informations techniques
 
