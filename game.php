@@ -166,14 +166,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['end_round'])) {
             <?php foreach ($_SESSION['players'] as $index => $player): ?>
                 <div>
                     <label><?php echo htmlspecialchars($player['name']); ?> : </label>
-                    <input type="number" name="predictions[]" min="1" max="<?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?>" placeholder="Prédiction" value="0" required>
+                    <input type="number" name="predictions[]" min="0" max="<?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?>" placeholder="Prédiction" value="0" required>
                 </div>
             <?php endforeach; ?>
             <h3>Résultats</h3>
             <?php foreach ($_SESSION['players'] as $index => $player): ?>
                 <div>
                     <label><?php echo htmlspecialchars($player['name']); ?> : </label>
-                    <input type="number" name="actual_plis[]" min="1" max="<?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?>" placeholder="Plis Réels" value="0" required>
+                    <input type="number" name="actual_plis[]" min="0" max="<?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?>" placeholder="Plis Réels" value="0" required>
                 </div>
             <?php endforeach; ?>
             <button type="submit" name="end_round">Terminer la Manche</button>
