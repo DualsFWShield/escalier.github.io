@@ -110,6 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['end_round'])) {
     <main>
         <h2>Manche <?php echo $_SESSION['current_round'] + 1; ?> / 20</h2>
         <p>Manche avec un maximum de plis : <?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?></p>
+        <p>Joueur qui pronostique en premier : <?php echo htmlspecialchars($_SESSION['players'][$_SESSION['current_player_index']]['name']); ?></p>
         
         <?php if (isset($error)): ?>
             <p class="error"><?php echo htmlspecialchars($error); ?></p>
@@ -117,12 +118,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['end_round'])) {
 
         <form method="post">
             <h3>Pronostics</h3>
-            <?php foreach ($_SESSION['players'] as $index => $player): ?>
+            <?php
+            $playerCount = count($_SESSION['players']);
+            for ($i = 0; $i < $playerCount; $i++) {
+                $playerIndex = ($_SESSION['current_player_index'] + $i) % $playerCount;
+                $player = $_SESSION['players'][$playerIndex];
+                ?>
                 <div>
                     <label><?php echo htmlspecialchars($player['name']); ?> : </label>
                     <input type="number" name="predictions[]" min="0" max="<?php echo $_SESSION['rounds'][$_SESSION['current_round']]; ?>" placeholder="Prédiction" value="0" required>
                 </div>
-            <?php endforeach; ?>
+            <?php } ?>
             <h3>Résultats</h3>
             <?php foreach ($_SESSION['players'] as $index => $player): ?>
                 <div>
