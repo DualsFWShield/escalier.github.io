@@ -15,7 +15,7 @@ Le jeu "Escalier" est un jeu de cartes simple qui peut être joué par plusieurs
 
 ## Informations techniques
 
-* Le jeu est développé en PHP et utilise une base de données MySQL pour stocker les scores.
+* Le jeu est développé en PHP, JavaScript, CSS et HTML et ne nécessite pas de base de données.
 * Le code source est disponible dans ce dépôt GitHub.
 
 ## Contribuer
